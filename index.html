@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>Base N Clock</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F553;</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            background: #06060c;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(15, 15, 35, 0.8) 0%, transparent 60%);
+            color: #ccc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 16px 40px;
+        }
+
+        .page-title {
+            font-size: 0.7rem;
+            font-weight: 300;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            color: #2e2e2e;
+            margin-bottom: 24px;
+        }
+
+        .clocks {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 960px;
+        }
+
+        .clock-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 14px;
+            padding: 14px 24px 18px;
+            position: relative;
+            animation: card-in 0.6s ease both;
+        }
+
+        .clock-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.2;
+            border-radius: 1px;
+        }
+
+        @keyframes card-in {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .clock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .clock-name {
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            opacity: 0.6;
+        }
+
+        .base-label {
+            font-size: 0.55rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            color: #2a2a2a;
+            text-transform: uppercase;
+        }
+
+        .clock-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .panel-left {
+            justify-content: flex-end;
+        }
+
+        .panel-right {
+            justify-content: flex-start;
+        }
+
+        .dot-grid {
+            display: inline-flex;
+            flex-direction: column;
+        }
+
+        .dot-row {
+            display: flex;
+        }
+
+        .dot {
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: background 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .dot.on {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--glow), 0 0 3px var(--accent);
+        }
+
+        .time-box {
+            padding: 6px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            text-align: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .time-digits {
+            font-weight: 200;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-shadow: 0 0 24px var(--glow);
+        }
+
+        .sep {
+            opacity: 0.35;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-title">Base N Clock</div>
+    <div class="clocks" id="clocks"></div>
+
+    <script>
+    (() => {
+        'use strict';
+
+        /* ─── Configuration ────────────────────────────── */
+
+        const CLOCKS = [
+            { base: 2,  name: 'Binary',  accent: '#00e5ff', dot: 5,   gap: 2,   fontSize: '2rem'   },
+            { base: 5,  name: 'Quinary', accent: '#69f0ae', dot: 9,   gap: 2.5, fontSize: '2.4rem' },
+            { base: 6,  name: 'Senary',  accent: '#e040fb', dot: 10,  gap: 2.5, fontSize: '2.4rem' },
+            { base: 10, name: 'Decimal', accent: '#ffd740', dot: 12,  gap: 3,   fontSize: '3rem'   },
+            { base: 12, name: 'Dozenal', accent: '#ff5252', dot: 13,  gap: 3,   fontSize: '3.2rem' },
+        ];
+
+        const HOUR_SLOTS = 12;   // 12-hour clock: values 0–11
+        const MIN_SLOTS  = 60;   // minutes: values 0–59
+        const ALPHA      = '0123456789AB';
+
+        /* ─── Helpers ──────────────────────────────────── */
+
+        function toBase(n, base) {
+            let s = '';
+            let v = n;
+            do {
+                s = ALPHA[v % base] + s;
+                v = Math.floor(v / base);
+            } while (v > 0);
+            return s;
+        }
+
+        /* ─── Build a dot grid (once) ──────────────────── */
+
+        function buildGrid(total, base, dotPx, gapPx) {
+            const el   = document.createElement('div');
+            el.className = 'dot-grid';
+            el.style.gap = gapPx + 'px';
+
+            const rows = Math.ceil(total / base);
+            const rem  = total % base;
+            const dots = [];
+
+            for (let r = 0; r < rows; r++) {
+                const cols = (r === rows - 1 && rem) ? rem : base;
+                const row  = document.createElement('div');
+                row.className = 'dot-row';
+                row.style.gap = gapPx + 'px';
+
+                for (let c = 0; c < cols; c++) {
+                    const d = document.createElement('div');
+                    d.className = 'dot';
+                    d.style.width  = dotPx + 'px';
+                    d.style.height = dotPx + 'px';
+                    row.appendChild(d);
+                    dots.push(d);
+                }
+                el.appendChild(row);
+            }
+            return { el, dots };
+        }
+
+        /* ─── Build the UI ─────────────────────────────── */
+
+        const root  = document.getElementById('clocks');
+        const state = [];
+
+        CLOCKS.forEach((cfg, i) => {
+            const card = document.createElement('div');
+            card.className = 'clock-card';
+            card.style.setProperty('--accent', cfg.accent);
+            card.style.setProperty('--glow', cfg.accent + '55');
+            card.style.animationDelay = (i * 0.08) + 's';
+
+            /* header */
+            const hdr = document.createElement('div');
+            hdr.className = 'clock-header';
+            hdr.innerHTML =
+                '<span class="clock-name">' + cfg.name + '</span>' +
+                '<span class="base-label">Base ' + cfg.base + '</span>';
+            card.appendChild(hdr);
+
+            /* body: [hour dots] [time] [minute dots] */
+            const body   = document.createElement('div');
+            body.className = 'clock-body';
+
+            const panelL = document.createElement('div');
+            panelL.className = 'panel panel-left';
+
+            const panelR = document.createElement('div');
+            panelR.className = 'panel panel-right';
+
+            const timeBox = document.createElement('div');
+            timeBox.className = 'time-box';
+
+            const timeDigits = document.createElement('div');
+            timeDigits.className = 'time-digits';
+            timeDigits.style.fontSize = cfg.fontSize;
+            timeBox.appendChild(timeDigits);
+
+            const hourGrid = buildGrid(HOUR_SLOTS, cfg.base, cfg.dot, cfg.gap);
+            const minGrid  = buildGrid(MIN_SLOTS,  cfg.base, cfg.dot, cfg.gap);
+
+            panelL.appendChild(hourGrid.el);
+            panelR.appendChild(minGrid.el);
+
+            body.appendChild(panelL);
+            body.appendChild(timeBox);
+            body.appendChild(panelR);
+            card.appendChild(body);
+            root.appendChild(card);
+
+            state.push({
+                cfg,
+                timeDigits,
+                hDots: hourGrid.dots,
+                mDots: minGrid.dots,
+                prevH: -1,
+                prevM: -1,
+            });
+        });
+
+        /* ─── Update loop ──────────────────────────────── */
+
+        function tick() {
+            const now = new Date();
+            const h   = now.getHours() % 12;   // 0–11
+            const m   = now.getMinutes();       // 0–59
+
+            for (const st of state) {
+                const { cfg, timeDigits, hDots, mDots } = st;
+
+                /* time text */
+                if (h !== st.prevH || m !== st.prevM) {
+                    timeDigits.innerHTML =
+                        toBase(h, cfg.base) +
+                        '<span class="sep">:</span>' +
+                        toBase(m, cfg.base);
+                }
+
+                /* hour dots */
+                if (h !== st.prevH) {
+                    for (let i = 0; i < hDots.length; i++) {
+                        hDots[i].classList.toggle('on', i < h);
+                    }
+                }
+
+                /* minute dots */
+                if (m !== st.prevM) {
+                    for (let i = 0; i < mDots.length; i++) {
+                        mDots[i].classList.toggle('on', i < m);
+                    }
+                }
+
+                st.prevH = h;
+                st.prevM = m;
+            }
+        }
+
+        /* initial render */
+        tick();
+
+        /* schedule ticks ~50ms after each second boundary */
+        function schedule() {
+            const ms = 1050 - (Date.now() % 1000);
+            setTimeout(function () { tick(); schedule(); }, ms);
+        }
+        schedule();
+    })();
+    </script>
+</body>
+</html>
