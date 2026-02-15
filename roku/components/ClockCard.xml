@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="ClockCard" extends="Group">
+    <interface>
+        <field id="cardConfig" type="assocarray" />
+        <field id="currentHour" type="integer" value="0" />
+        <field id="currentMinute" type="integer" value="0" />
+        <field id="focused" type="boolean" value="false" />
+    </interface>
+    <script type="text/brightscript" uri="ClockCard.brs" />
+    <children>
+        <!-- Card background -->
+        <Rectangle id="cardBg" width="960" height="116" color="0x0D0D18FF" />
+
+        <!-- Accent line at top of card -->
+        <Rectangle id="accentLine" width="960" height="1" color="0xFFFFFF26" />
+
+        <!-- Clock name label (left-aligned) -->
+        <Label id="nameLabel" text="" translation="[24, 10]" color="0xFFFFFFFF">
+            <Font role="font" uri="font:SystemFontFile" size="16" />
+        </Label>
+
+        <!-- Base label (right-aligned) -->
+        <Label
+            id="baseLabel"
+            text=""
+            width="912"
+            horizAlign="right"
+            translation="[24, 10]"
+            color="0x2A2A2AFF"
+        >
+            <Font role="font" uri="font:SystemFontFile" size="16" />
+        </Label>
+
+        <!-- Time display (centered in card body) -->
+        <Label
+            id="timeLabel"
+            text=""
+            width="960"
+            height="70"
+            horizAlign="center"
+            vertAlign="center"
+            translation="[0, 28]"
+            color="0xFFFFFFFF"
+        />
+
+        <!-- Hour progress bar -->
+        <Group translation="[24, 102]">
+            <Rectangle id="hourBarBg" width="200" height="4" color="0xFFFFFF15" />
+            <Rectangle id="hourBarFg" width="0" height="4" color="0xFFFFFFFF" />
+        </Group>
+
+        <!-- Minute progress bar -->
+        <Group translation="[736, 102]">
+            <Rectangle id="minBarBg" width="200" height="4" color="0xFFFFFF15" />
+            <Rectangle id="minBarFg" width="0" height="4" color="0xFFFFFFFF" />
+        </Group>
+    </children>
+</component>

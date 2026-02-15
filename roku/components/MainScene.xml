@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="MainScene" extends="Scene">
+    <script type="text/brightscript" uri="MainScene.brs" />
+    <children>
+        <Rectangle
+            id="background"
+            width="1280"
+            height="720"
+            color="0x06060CFF"
+        />
+        <Label
+            id="pageTitle"
+            text="B A S E   N   C L O C K"
+            width="1280"
+            horizAlign="center"
+            translation="[0, 28]"
+            color="0x2E2E2EFF"
+        >
+            <Font role="font" uri="font:SystemFontFile" size="18" />
+        </Label>
+        <LayoutGroup
+            id="cardLayout"
+            layoutDirection="vert"
+            itemSpacings="[8]"
+            translation="[160, 62]"
+        />
+        <Timer
+            id="clockTimer"
+            repeat="true"
+            duration="1"
+        />
+    </children>
+</component>
