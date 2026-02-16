@@ -238,7 +238,7 @@
             const hdr = document.createElement('div');
             hdr.className = 'clock-header';
             hdr.innerHTML =
-                '<span class="clock-name">' + cfg.name + '</span>' +
+                '<span class="clock-name">' + cfg.name + ' (0-' + ALPHA[cfg.base - 1] + ')</span>' +
                 '<span class="base-label">Base ' + cfg.base + '</span>';
             card.appendChild(hdr);
 

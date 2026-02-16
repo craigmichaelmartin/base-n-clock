@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="DotGrid" extends="Group">
+    <interface>
+        <field id="gridConfig" type="assocarray" />
+        <field id="currentValue" type="integer" value="0" />
+    </interface>
+    <script type="text/brightscript" uri="DotGrid.brs" />
+</component>

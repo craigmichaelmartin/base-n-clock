@@ -4,8 +4,8 @@ sub init()
     m.nameLabel = m.top.findNode("nameLabel")
     m.baseLabel = m.top.findNode("baseLabel")
     m.timeLabel = m.top.findNode("timeLabel")
-    m.hourBarFg = m.top.findNode("hourBarFg")
-    m.minBarFg = m.top.findNode("minBarFg")
+    m.hourGrid = m.top.findNode("hourGrid")
+    m.minGrid = m.top.findNode("minGrid")
 
     m.base = 10
     m.hourDigits = 2
@@ -23,16 +23,15 @@ sub onConfigChanged()
 
     m.base = cfg.base
 
-    m.nameLabel.text = UCase(cfg.name)
+    alpha = "0123456789AB"
+    maxDigit = alpha.mid(cfg.base - 1, 1)
+    m.nameLabel.text = UCase(cfg.name) + " (0-" + maxDigit + ")"
     m.nameLabel.color = cfg.accent
 
     m.baseLabel.text = "BASE " + Str(cfg.base).trim()
 
     m.accentLine.color = cfg.accent
     m.accentLine.opacity = 0.2
-
-    m.hourBarFg.color = cfg.accent
-    m.minBarFg.color = cfg.accent
 
     m.timeLabel.color = cfg.accent
 
@@ -46,6 +45,60 @@ sub onConfigChanged()
     m.hourDigits = digitsNeeded(11, cfg.base)
     m.minDigits = digitsNeeded(59, cfg.base)
 
+    ' Configure the hour dot grid (12 dots, base columns)
+    dotSize = cfg.dotSize
+    dotGap = cfg.dotGap
+    dimColor = "0xFFFFFF26"
+
+    hCfg = {}
+    hCfg.totalDots = 12
+    hCfg.cols = cfg.base
+    hCfg.dotSize = dotSize
+    hCfg.dotGap = dotGap
+    hCfg.accentColor = cfg.accent
+    hCfg.dimColor = dimColor
+    m.hourGrid.gridConfig = hCfg
+
+    ' Configure the minute dot grid (60 dots, base columns)
+    mCfg = {}
+    mCfg.totalDots = 60
+    mCfg.cols = cfg.base
+    mCfg.dotSize = dotSize
+    mCfg.dotGap = dotGap
+    mCfg.accentColor = cfg.accent
+    mCfg.dimColor = dimColor
+    m.minGrid.gridConfig = mCfg
+
+    ' Calculate grid pixel dimensions for layout
+    hourRows = Int((12 + cfg.base - 1) / cfg.base)
+    hourGridH = hourRows * dotSize + (hourRows - 1) * dotGap
+    hourGridW = cfg.base * dotSize + (cfg.base - 1) * dotGap
+
+    minRows = Int((60 + cfg.base - 1) / cfg.base)
+    minGridH = minRows * dotSize + (minRows - 1) * dotGap
+    minGridW = cfg.base * dotSize + (cfg.base - 1) * dotGap
+
+    ' Body height = tallest of hour grid, minute grid, or font
+    bodyH = cfg.fontSize
+    if hourGridH > bodyH then bodyH = hourGridH
+    if minGridH > bodyH then bodyH = minGridH
+
+    ' Resize card background to fit content
+    headerH = 28
+    bottomPad = 10
+    cardH = headerH + bodyH + bottomPad
+    m.cardBg.height = cardH
+
+    ' Position dot grids vertically centered in body area
+    hourY = headerH + Int((bodyH - hourGridH) / 2)
+    minY = headerH + Int((bodyH - minGridH) / 2)
+    m.hourGrid.translation = [24, hourY]
+    m.minGrid.translation = [960 - 24 - minGridW, minY]
+
+    ' Position time label to fill body area for vertical centering
+    m.timeLabel.translation = [0, headerH]
+    m.timeLabel.height = bodyH
+
     onTimeChanged()
 end sub
 
@@ -55,32 +108,17 @@ sub onTimeChanged()
     h = m.top.currentHour
     min = m.top.currentMinute
 
-    hStr = padLeft(toBase(h, m.base), m.hourDigits)
+    hStr = toBase(h, m.base)
     mStr = padLeft(toBase(min, m.base), m.minDigits)
 
     m.timeLabel.text = hStr + "  :  " + mStr
 
-    ' Update hour progress bar (0-11 mapped to 0-200px)
-    if h > 0
-        m.hourBarFg.width = Int(200 * h / 11)
-    else
-        m.hourBarFg.width = 0
-    end if
-
-    ' Update minute progress bar (0-59 mapped to 0-200px)
-    if min > 0
-        m.minBarFg.width = Int(200 * min / 59)
-    else
-        m.minBarFg.width = 0
-    end if
+    ' Update dot grids
+    m.hourGrid.currentValue = h
+    m.minGrid.currentValue = min
 end sub
 
 sub onFocusChanged()
-    if m.top.focused
-        m.cardBg.color = "0x14142AFF"
-    else
-        m.cardBg.color = "0x0D0D18FF"
-    end if
 end sub
 
 ' Convert an integer to a string in the given base (supports up to base 12)

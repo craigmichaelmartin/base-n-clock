@@ -13,40 +13,45 @@ sub init()
     c.base = 2
     c.name = "Binary"
     c.accent = "0x00E5FFFF"
-    c.accentDim = "0x00E5FF26"
     c.fontSize = 30
+    c.dotSize = 4
+    c.dotGap = 2
     configs.push(c)
 
     c = {}
     c.base = 5
     c.name = "Quinary"
     c.accent = "0x69F0AEFF"
-    c.accentDim = "0x69F0AE26"
     c.fontSize = 36
+    c.dotSize = 5
+    c.dotGap = 2
     configs.push(c)
 
     c = {}
     c.base = 6
     c.name = "Senary"
     c.accent = "0xE040FBFF"
-    c.accentDim = "0xE040FB26"
     c.fontSize = 36
+    c.dotSize = 5
+    c.dotGap = 2
     configs.push(c)
 
     c = {}
     c.base = 10
     c.name = "Decimal"
     c.accent = "0xFFD740FF"
-    c.accentDim = "0xFFD74026"
     c.fontSize = 42
+    c.dotSize = 6
+    c.dotGap = 2
     configs.push(c)
 
     c = {}
     c.base = 12
     c.name = "Dozenal"
     c.accent = "0xFF5252FF"
-    c.accentDim = "0xFF525226"
     c.fontSize = 44
+    c.dotSize = 6
+    c.dotGap = 2
     configs.push(c)
 
     for i = 0 to configs.count() - 1
