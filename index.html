@@ -194,6 +194,24 @@
             return s;
         }
 
+        function digitsNeeded(maxVal, base) {
+            let d = 1;
+            let v = maxVal;
+            while (v >= base) {
+                d += 1;
+                v = Math.floor(v / base);
+            }
+            return d;
+        }
+
+        function padLeft(s, length) {
+            let out = s;
+            while (out.length < length) {
+                out = '0' + out;
+            }
+            return out;
+        }
+
         /* ─── Build a dot grid (once) ──────────────────── */
 
         function buildGrid(total, base, dotPx, gapPx) {
@@ -279,6 +297,7 @@
                 timeDigits,
                 hDots: hourGrid.dots,
                 mDots: minGrid.dots,
+                minDigits: digitsNeeded(MIN_SLOTS - 1, cfg.base),
                 prevH: -1,
                 prevM: -1,
             });
@@ -292,14 +311,14 @@
             const m   = now.getMinutes();       // 0–59
 
             for (const st of state) {
-                const { cfg, timeDigits, hDots, mDots } = st;
+                const { cfg, timeDigits, hDots, mDots, minDigits } = st;
 
                 /* time text */
                 if (h !== st.prevH || m !== st.prevM) {
                     timeDigits.innerHTML =
                         toBase(h, cfg.base) +
                         '<span class="sep">:</span>' +
-                        toBase(m, cfg.base);
+                        padLeft(toBase(m, cfg.base), minDigits);
                 }
 
                 /* hour dots */
