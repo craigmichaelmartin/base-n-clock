@@ -178,7 +178,7 @@
         const DOT_SIZE = 10;
         const TIME_FONT_SIZE = '2.6rem';
 
-        const HOUR_SLOTS = 12;   // 12-hour clock: values 0–11
+        const HOUR_SLOTS = 12;   // 12-hour clock: values 1–12
         const MIN_SLOTS  = 60;   // minutes: values 0–59
         const ALPHA      = '0123456789AB';
 
@@ -307,7 +307,8 @@
 
         function tick() {
             const now = new Date();
-            const h   = now.getHours() % 12;   // 0–11
+            const h24 = now.getHours();
+            const h   = ((h24 + 11) % 12) + 1; // 1–12 (12 instead of 0)
             const m   = now.getMinutes();       // 0–59
 
             for (const st of state) {

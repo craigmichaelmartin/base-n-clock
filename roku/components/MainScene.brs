@@ -72,7 +72,8 @@ end sub
 sub onTick()
     dt = CreateObject("roDateTime")
     dt.toLocalTime()
-    h = dt.getHours() mod 12
+    h24 = dt.getHours()
+    h = ((h24 + 11) mod 12) + 1
     min = dt.getMinutes()
 
     ' Only push updates when the time actually changes

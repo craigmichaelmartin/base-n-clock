@@ -42,7 +42,7 @@ sub onConfigChanged()
     m.timeLabel.font = timeFont
 
     ' Pre-calculate the digit counts for zero-padding
-    m.hourDigits = digitsNeeded(11, cfg.base)
+    m.hourDigits = digitsNeeded(12, cfg.base)
     m.minDigits = digitsNeeded(59, cfg.base)
 
     ' Configure the hour dot grid (12 dots, base columns)
