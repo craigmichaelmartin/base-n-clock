@@ -46,7 +46,7 @@
         }
 
         .clock-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%);
+            background: transparent;
             border: 1px solid rgba(255,255,255,0.04);
             border-radius: 14px;
             padding: 14px 24px 18px;
@@ -169,13 +169,14 @@
         /* ─── Configuration ────────────────────────────── */
 
         const CLOCKS = [
-            { base: 2,  name: 'Binary',  accent: '#00e5ff', gap: 2,   fontSize: '2rem'   },
-            { base: 5,  name: 'Quinary', accent: '#69f0ae', gap: 2.5, fontSize: '2.4rem' },
-            { base: 6,  name: 'Senary',  accent: '#e040fb', gap: 2.5, fontSize: '2.4rem' },
-            { base: 10, name: 'Decimal', accent: '#ffd740', gap: 3,   fontSize: '3rem'   },
-            { base: 12, name: 'Dozenal', accent: '#ff5252', gap: 3,   fontSize: '3.2rem' },
+            { base: 2,  name: 'Binary',  accent: '#00e5ff', gap: 2   },
+            { base: 5,  name: 'Quinary', accent: '#69f0ae', gap: 2.5 },
+            { base: 6,  name: 'Senary',  accent: '#e040fb', gap: 2.5 },
+            { base: 10, name: 'Decimal', accent: '#ffd740', gap: 3   },
+            { base: 12, name: 'Dozenal', accent: '#ff5252', gap: 3   },
         ];
         const DOT_SIZE = 10;
+        const TIME_FONT_SIZE = '2.6rem';
 
         const HOUR_SLOTS = 12;   // 12-hour clock: values 0–11
         const MIN_SLOTS  = 60;   // minutes: values 0–59
@@ -258,7 +259,7 @@
 
             const timeDigits = document.createElement('div');
             timeDigits.className = 'time-digits';
-            timeDigits.style.fontSize = cfg.fontSize;
+            timeDigits.style.fontSize = TIME_FONT_SIZE;
             timeBox.appendChild(timeDigits);
 
             const hourGrid = buildGrid(HOUR_SLOTS, cfg.base, DOT_SIZE, cfg.gap);
